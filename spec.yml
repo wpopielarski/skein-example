@@ -1,0 +1,19 @@
+name: skein-stream
+queue: datascience
+
+master:
+  resources:
+    memory: 5 GiB
+    vcores: 1
+  log_level: debug
+  env:
+    ARROW_LIBHDFS_DIR: /usr/hdp/2.6.5.1175-1/usr/lib/
+  files:
+    conda_env: hdfs:///user/svc-ds-dev/bpf-dask-stream.tar.gz
+    skein_test.py: hdfs:///user/svc-ds-dev/bpf-test/skein-test.py
+    dask_spec.yml: hdfs:///user/svc-ds-dev/bpf-test/dask-spec.yml
+    keytab.file: hdfs:///user/svc-ds-dev/svc-ds-dev.keytab
+  script: |
+    source conda_env/bin/activate
+    python skein_test.py --keytab keytab.file --principal svc-ds-dev@GLOBAL.TESCO.ORG
+

@@ -1,0 +1,45 @@
+name: dask-stream
+queue: datascience
+
+services:
+  dask.client:
+    resources:
+      memory: 1 GiB
+      vcores: 1
+    env:
+      ARROW_LIBHDFS_DIR: /usr/hdp/2.6.5.1175-1/usr/lib/
+    files:
+      conda_env: hdfs:///user/svc-ds-dev/bpf-dask-stream.tar.gz
+      dask_test.py: hdfs:///user/svc-ds-dev/bpf-test/dask-test.py
+    script: |
+      source conda_env/bin/activate
+      dask-yarn services client dask_test.py
+
+  dask.scheduler:
+    resources:
+      memory: 1 GiB
+      vcores: 1
+    env:
+      ARROW_LIBHDFS_DIR: /usr/hdp/2.6.5.1175-1/usr/lib/
+    files:
+      conda_env: hdfs:///user/svc-ds-dev/bpf-dask-stream.tar.gz
+    script: |
+      source conda_env/bin/activate
+      dask-yarn services scheduler
+
+  dask.worker:
+    instances: 0
+    max_restarts: -1
+    resources:
+      memory: 1 GiB
+      vcores: 2
+    env:
+      ARROW_LIBHDFS_DIR: /usr/hdp/2.6.5.1175-1/usr/lib/
+      worker_options: e30=
+    files:
+      conda_env: hdfs:///user/svc-ds-dev/bpf-dask-stream.tar.gz
+    depends:
+      - dask.scheduler
+    script: |
+      source conda_env/bin/activate
+      dask-yarn services worker
